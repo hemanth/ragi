@@ -3,7 +3,7 @@
 import json
 import os
 import tempfile
-from ragi import Ragi
+from piragi import Ragi
 
 
 def create_sample_docs(tmpdir):

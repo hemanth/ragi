@@ -4,7 +4,7 @@ import os
 import tempfile
 import time
 import threading
-from ragi import Ragi
+from piragi import Ragi
 from ragi.async_updater import AsyncUpdater
 
 

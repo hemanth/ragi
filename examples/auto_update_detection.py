@@ -3,7 +3,7 @@
 import os
 import tempfile
 import time
-from ragi import Ragi
+from piragi import Ragi
 from ragi.change_detection import ChangeDetector
 
 
@@ -230,7 +230,7 @@ def main():
 
 Usage Pattern:
 ```python
-from ragi import Ragi
+from piragi import Ragi
 from ragi.change_detection import ChangeDetector
 
 # Track sources with metadata

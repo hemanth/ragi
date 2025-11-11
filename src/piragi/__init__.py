@@ -1,8 +1,8 @@
 """
-Ragi - Zero-setup RAG library with auto-chunking, embeddings, and smart citations.
+piragi - Zero-setup RAG library with auto-chunking, embeddings, and smart citations.
 
 Example:
-    >>> from ragi import Ragi
+    >>> from piragi import Ragi
     >>>
     >>> # One-liner setup and query
     >>> kb = Ragi("./docs")

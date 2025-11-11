@@ -2,7 +2,7 @@
 
 import sys
 import urllib.request
-from ragi import Ragi
+from piragi import Ragi
 
 
 def check_ollama():

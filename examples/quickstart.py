@@ -1,6 +1,6 @@
 """Quickstart example for Ragi."""
 
-from ragi import Ragi
+from piragi import Ragi
 
 
 def main():

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-01-10
 
 ### Added
-- Initial release of Ragi
+- Initial release of piragi
 - Zero-config RAG with built-in vector store (LanceDB)
 - Universal document support (PDF, Word, Excel, Markdown, Code, URLs, Images, Audio)
 - Auto-chunking with markdown-aware splitting

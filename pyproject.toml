@@ -52,7 +52,7 @@ Repository = "https://github.com/hemanth/ragi"
 Issues = "https://github.com/hemanth/ragi/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ragi"]
+packages = ["src/piragi"]
 
 [tool.black]
 line-length = 100
@@ -74,4 +74,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=ragi --cov-report=term-missing"
+addopts = "-v --cov=piragi --cov-report=term-missing"

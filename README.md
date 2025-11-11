@@ -1,9 +1,9 @@
-# Ragi
+# piragi
 
 **The best RAG interface yet.**
 
 ```python
-from ragi import Ragi
+from piragi import Ragi
 
 kb = Ragi(["./docs", "./code/**/*.py", "https://api.example.com/docs"])
 answer = kb.ask("How do I deploy this?")
@@ -95,7 +95,7 @@ kb = Ragi("./docs", config={"auto_update": {"enabled": False}})
 ## API
 
 ```python
-kb = Ragi(sources, persist_dir=".ragi", config=None)
+kb = Ragi(sources, persist_dir=".piragi", config=None)
 kb.add("./more-docs")
 kb.ask(query, top_k=5)
 kb(query)  # Shorthand
@@ -108,4 +108,4 @@ Full docs: [API.md](API.md)
 
 ---
 
-MIT License | **Ragi** = **R**etrieval **A**ugmented **G**eneration **I**nterface
+MIT License | **piragi** = **R**etrieval **A**ugmented **G**eneration **I**nterface

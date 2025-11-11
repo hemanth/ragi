@@ -1,4 +1,4 @@
-"""Core Ragi class - the main interface."""
+"""Core Ragi class - the main interface for piragi."""
 
 from typing import Any, Dict, List, Optional, Union
 
@@ -17,7 +17,7 @@ class Ragi:
     Zero-setup RAG library with auto-chunking, embeddings, and smart citations.
 
     Examples:
-        >>> from ragi import Ragi
+        >>> from piragi import Ragi
         >>>
         >>> # Simple - uses free local models
         >>> kb = Ragi("./docs")
@@ -39,7 +39,7 @@ class Ragi:
     def __init__(
         self,
         sources: Union[str, List[str], None] = None,
-        persist_dir: str = ".ragi",
+        persist_dir: str = ".piragi",
         config: Optional[Dict[str, Any]] = None,
     ) -> None:
         """

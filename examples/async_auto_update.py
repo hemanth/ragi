@@ -4,7 +4,7 @@ import os
 import tempfile
 import time
 import logging
-from ragi import Ragi
+from piragi import Ragi
 from ragi.async_updater import AsyncUpdater
 
 # Enable logging to see update activity
@@ -281,7 +281,7 @@ Architecture:
 
 Configuration:
 ```python
-from ragi import Ragi
+from piragi import Ragi
 from ragi.async_updater import AsyncUpdater
 
 kb = Ragi("./docs")
