@@ -92,8 +92,9 @@ class DocumentLoader:
             content = result.text_content
 
             metadata = {
-                "url": url,
-                "source_type": "url",
+                "filename": url.split("/")[-1] or "index",
+                "file_type": "url",
+                "file_path": url,
             }
 
             return Document(content=content, source=url, metadata=metadata)
