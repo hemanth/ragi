@@ -2,6 +2,7 @@
 
 import glob
 import os
+import tempfile
 from pathlib import Path
 from typing import List, Union
 from urllib.parse import urlparse
@@ -9,6 +10,27 @@ from urllib.parse import urlparse
 from markitdown import MarkItDown
 
 from .types import Document
+
+# Remote filesystem schemes supported via fsspec
+REMOTE_SCHEMES = {"s3", "gs", "gcs", "az", "abfs", "abfss", "hdfs", "webhdfs", "sftp", "ftp"}
+
+# Lazy import fsspec - only when needed
+_fsspec = None
+
+
+def _get_fsspec():
+    """Lazy load fsspec, raising helpful error if not installed."""
+    global _fsspec
+    if _fsspec is None:
+        try:
+            import fsspec
+            _fsspec = fsspec
+        except ImportError:
+            raise ImportError(
+                "fsspec is required for remote filesystem support. "
+                "Install it with: pip install piragi[remote] or pip install fsspec"
+            )
+    return _fsspec
 
 
 class DocumentLoader:
@@ -40,8 +62,12 @@ class DocumentLoader:
         return documents
 
     def _load_single(self, source: str) -> List[Document]:
-        """Load from a single source (file, URL, or glob pattern)."""
-        # Check if it's a URL
+        """Load from a single source (file, URL, glob pattern, or remote URI)."""
+        # Check if it's a remote filesystem URI (s3://, gs://, az://, etc.)
+        if self._is_remote_uri(source):
+            return self._load_remote(source)
+
+        # Check if it's a URL (http/https)
         if self._is_url(source):
             return [self._load_url(source)]
 
@@ -59,11 +85,19 @@ class DocumentLoader:
 
         raise ValueError(f"Invalid source: {source}")
 
+    def _is_remote_uri(self, source: str) -> bool:
+        """Check if source is a remote filesystem URI (s3://, gs://, az://, etc.)."""
+        try:
+            parsed = urlparse(source)
+            return parsed.scheme in REMOTE_SCHEMES
+        except Exception:
+            return False
+
     def _is_url(self, source: str) -> bool:
-        """Check if source is a URL."""
+        """Check if source is an HTTP/HTTPS URL."""
         try:
             result = urlparse(source)
-            return all([result.scheme, result.netloc])
+            return result.scheme in ("http", "https") and bool(result.netloc)
         except Exception:
             return False
 
@@ -130,3 +164,106 @@ class DocumentLoader:
                 continue
 
         return documents
+
+    def _load_remote(self, uri: str) -> List[Document]:
+        """
+        Load files from remote filesystems (S3, GCS, Azure, etc.) using fsspec.
+
+        Supports glob patterns in the URI path, e.g.:
+            s3://bucket/docs/**/*.pdf
+            gs://bucket/reports/*.md
+            az://container/files/*.txt
+        """
+        # Parse the URI to get scheme
+        parsed = urlparse(uri)
+        scheme = parsed.scheme
+
+        # Get fsspec (lazy import)
+        fsspec = _get_fsspec()
+
+        # Get the filesystem
+        try:
+            fs = fsspec.filesystem(scheme)
+        except ImportError as e:
+            # Provide helpful error message for missing dependencies
+            pkg_map = {
+                "s3": "s3fs",
+                "gs": "gcsfs",
+                "gcs": "gcsfs",
+                "az": "adlfs",
+                "abfs": "adlfs",
+                "abfss": "adlfs",
+            }
+            pkg = pkg_map.get(scheme, scheme)
+            raise ImportError(
+                f"To use {scheme}:// URIs, install the required package: "
+                f"pip install piragi[{scheme}] or pip install {pkg}"
+            ) from e
+
+        # Remove scheme for fsspec path
+        remote_path = uri.split("://", 1)[1]
+
+        # Check if it's a glob pattern
+        is_glob = any(char in remote_path for char in ["*", "?", "[", "]"])
+
+        if is_glob:
+            # Use fsspec glob to find matching files
+            files = fs.glob(remote_path)
+            if not files:
+                raise ValueError(f"No files found matching pattern: {uri}")
+        else:
+            # Single file or directory
+            if fs.isdir(remote_path):
+                # Load all files from remote directory
+                files = [f for f in fs.find(remote_path) if not fs.isdir(f)]
+            else:
+                files = [remote_path]
+
+        if not files:
+            raise ValueError(f"No files found at: {uri}")
+
+        documents = []
+        for remote_file in files:
+            try:
+                doc = self._load_remote_file(fs, scheme, remote_file)
+                documents.append(doc)
+            except Exception:
+                # Skip files that can't be processed
+                continue
+
+        if not documents:
+            raise ValueError(f"No files could be loaded from: {uri}")
+
+        return documents
+
+    def _load_remote_file(self, fs, scheme: str, remote_path: str) -> Document:
+        """Load a single file from a remote filesystem."""
+        # Download to temp file for markitdown processing
+        filename = os.path.basename(remote_path)
+        suffix = Path(filename).suffix
+
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+            tmp_path = tmp.name
+            # Download the file
+            fs.get(remote_path, tmp_path)
+
+        try:
+            # Convert using markitdown
+            result = self.converter.convert(tmp_path)
+            content = result.text_content
+
+            # Build the full URI for source tracking
+            source_uri = f"{scheme}://{remote_path}"
+
+            metadata = {
+                "filename": filename,
+                "file_type": suffix.lstrip(".") if suffix else "unknown",
+                "file_path": source_uri,
+                "remote_scheme": scheme,
+            }
+
+            return Document(content=content, source=source_uri, metadata=metadata)
+
+        finally:
+            # Clean up temp file
+            os.unlink(tmp_path)

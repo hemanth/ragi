@@ -111,7 +111,7 @@ class SupabaseStore:
         except ImportError:
             raise ImportError(
                 "SupabaseStore requires supabase-py. "
-                "Install with: pip install supabase"
+                "Install with: pip install piragi[supabase]"
             )
 
         self.url = url or os.environ.get("SUPABASE_URL")
