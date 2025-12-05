@@ -5,6 +5,8 @@ A Streamlit-based chat interface for Piragi with full configuration of chunking 
 ## Features
 
 - 📁 **Document Upload** - Drag & drop files (txt, md, pdf, html, docx) or add URLs
+- 💾 **Persistent Storage** - Uploads saved to `~/.piragi/uploads/`, survives restarts
+- 🔄 **Re-indexing** - Change settings and re-process docs with one click
 - 💬 **Chat Interface** - Ask questions, get grounded answers with citations
 - ⚙️ **Full Configuration** - Chunking strategies, retrieval options, model selection
 - 🔍 **Debug Mode** - See timing and active settings
