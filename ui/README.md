@@ -16,17 +16,11 @@ A Streamlit-based chat interface for Piragi with full configuration of chunking 
 
 ```bash
 # From the piragi directory
-./ui/run.sh
+./ui/run.sh              # Uses "default" project
+./ui/run.sh my-client    # Uses "my-client" project
 ```
 
-Or manually:
-
-```bash
-cd ui
-pip install streamlit
-streamlit run app.py
-```
-
+Each project gets isolated storage in `~/.piragi/projects/<name>/`.
 ## Requirements
 
 - Python 3.10+

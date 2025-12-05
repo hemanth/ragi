@@ -7,10 +7,14 @@ from pathlib import Path
 
 import streamlit as st
 
-# Persistent storage directories
-PIRAGI_HOME = Path.home() / ".piragi"
+# Project-based storage directories
+# Set PIRAGI_PROJECT env var or pass project name to run.sh
+PROJECT_NAME = os.environ.get("PIRAGI_PROJECT", "default")
+PIRAGI_HOME = Path.home() / ".piragi" / "projects" / PROJECT_NAME
 UPLOADS_DIR = PIRAGI_HOME / "uploads"
+DATA_DIR = PIRAGI_HOME / "data"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -94,7 +98,7 @@ def get_kb_config():
 def get_kb(_config_hash: str):
     """Initialize or get cached knowledge base."""
     config = get_kb_config()
-    return Ragi(persist_dir=".piragi_ui", config=config)
+    return Ragi(persist_dir=str(DATA_DIR), config=config)
 
 
 def config_hash():
@@ -106,7 +110,7 @@ def config_hash():
 
 
 def main():
-    st.title("📚 Piragi")
+    st.title(f"📚 Piragi ({PROJECT_NAME})")
     st.caption("Zero-setup RAG with smart citations")
 
     # Track processed files to avoid duplicates

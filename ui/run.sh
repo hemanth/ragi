@@ -1,12 +1,18 @@
 #!/bin/bash
 # Quick start script for Piragi UI
+# Usage: ./run.sh [project-name]
+# Example: ./run.sh my-client
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 
-echo "🚀 Starting Piragi UI..."
+# Project name from arg or env var or default
+PROJECT_NAME="${1:-${PIRAGI_PROJECT:-default}}"
+export PIRAGI_PROJECT="$PROJECT_NAME"
+
+echo "🚀 Starting Piragi UI (project: $PROJECT_NAME)..."
 
 # Check for Ollama
 if ! command -v ollama &> /dev/null; then
